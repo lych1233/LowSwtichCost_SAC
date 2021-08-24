@@ -56,7 +56,9 @@ class SAC(object):
         self.last_update = 0
         self.trigger_force_deploy = 0
         self.feature_reject, self.kl_reject = 0, 0
-        self.force_deploy_interval = 10000
+        self.force_deploy_interval = args.force_deploy_interval
+        if self.force_deploy_interval < 0:
+            self.force_deploy_interval = int(1e9)
         print('reset: {} | need f: {} | need kl: {}'.format(self.only_reset_criteria, self.need_feature, self.need_kl))
         max_power = np.log(1e9) / np.log(args.visit_eta)
         self.visit_deploy_T = (args.visit_eta ** np.arange(max_power)).astype(np.long)
@@ -181,7 +183,7 @@ class SAC(object):
         else:
             raise NotImplementedError('Your switching policy is not implemented due to some issues')
 
-        if not to_reset and T - self.last_update > self.force_deploy_interval:
+        if not to_reset and T - self.last_update > self.force_deploy_interval and self.force_deploy_interval > 0:
             to_reset = True
             self.trigger_force_deploy += 1
         if to_reset:
